@@ -3,43 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 進階營養師 | 三大營養素監控</title>
+    <title>AI 視覺營養師 | 拍照辨識版</title>
     <style>
-        :root { --primary: #27ae60; --secondary: #2980b9; --warn: #e67e22; --danger: #c0392b; --bg: #f0f2f5; }
-        body { font-family: 'PingFang TC', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; height: 100vh; }
-        .app-container { width: 100%; max-width: 1200px; display: flex; gap: 15px; margin: 20px; border-radius: 15px; overflow: hidden; }
+        :root { --primary: #27ae60; --secondary: #2980b9; --bg: #f0f2f5; }
+        body { font-family: 'PingFang TC', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .app-container { width: 100%; max-width: 1200px; display: flex; gap: 15px; margin: 15px; border-radius: 15px; overflow: hidden; }
         
-        /* 側邊資訊欄 */
-        .sidebar { width: 350px; background: white; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); overflow-y: auto; }
-        .info-card { background: #f9f9f9; padding: 15px; border-radius: 10px; border-top: 4px solid var(--secondary); }
-        .info-card h3 { margin: 0 0 10px 0; font-size: 1rem; color: #333; }
-        .input-group { margin-bottom: 10px; }
-        label { font-size: 0.8rem; color: #666; }
-        input[type="number"], select { width: 90%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; }
+        /* 側邊欄與原本相同，略作精簡 */
+        .sidebar { width: 300px; background: white; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); overflow-y: auto; }
+        .info-card { background: #f9f9f9; padding: 12px; border-radius: 10px; border-top: 4px solid var(--secondary); font-size: 0.9rem; }
         
-        /* 數值面板 */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .stat-item { background: #fff; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stat-label { font-size: 0.75rem; color: #888; }
-        .stat-val { font-size: 1.1rem; font-weight: bold; color: var(--secondary); }
-
         /* 聊天主區 */
-        .chat-section { flex: 1; background: #e5ddd5; display: flex; flex-direction: column; }
-        .chat-header { background: var(--primary); color: white; padding: 15px 20px; font-weight: bold; }
+        .chat-section { flex: 1; background: #e5ddd5; display: flex; flex-direction: column; position: relative; }
+        .chat-header { background: var(--primary); color: white; padding: 15px 20px; font-weight: bold; display: flex; justify-content: space-between; }
         
-        /* 營養預算列 */
-        .macro-bar { background: white; padding: 15px; display: flex; justify-content: space-around; border-bottom: 1px solid #ddd; text-align: center; }
-        .macro-item { flex: 1; }
-        .macro-name { font-size: 0.7rem; color: #666; }
-        .macro-remain { font-size: 1rem; font-weight: bold; }
-        .remain-cal { color: var(--danger); font-size: 1.2rem; }
+        /* 營養儀表板 */
+        .macro-bar { background: white; padding: 10px; display: flex; justify-content: space-around; border-bottom: 1px solid #ddd; text-align: center; font-size: 0.8rem; }
+        .macro-remain { font-size: 1.1rem; font-weight: bold; color: var(--secondary); }
 
         .chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 75%; padding: 12px; border-radius: 10px; font-size: 0.95rem; line-height: 1.5; }
+        .msg { max-width: 75%; padding: 12px; border-radius: 10px; font-size: 0.95rem; }
         .user-msg { align-self: flex-end; background: #dcf8c6; }
         .ai-msg { align-self: flex-start; background: white; }
-        .input-area { padding: 15px; background: #f0f0f0; display: flex; gap: 10px; }
+        .img-preview { max-width: 200px; border-radius: 10px; margin-top: 5px; }
+
+        /* 輸入區與功能按鈕 */
+        .input-area { padding: 15px; background: #f0f0f0; display: flex; gap: 10px; align-items: center; }
         .input-area input { flex: 1; border: none; padding: 12px; border-radius: 20px; outline: none; }
+        .icon-btn { cursor: pointer; font-size: 1.5rem; background: none; border: none; color: #555; transition: 0.3s; }
+        .icon-btn:hover { color: var(--primary); }
+        
+        /* 相機遮罩層 */
+        #camera-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        video { width: 100%; max-height: 80%; }
+        .cam-controls { margin-top: 20px; display: flex; gap: 20px; }
     </style>
 </head>
 <body>
@@ -47,140 +44,135 @@
 <div class="app-container">
     <div class="sidebar">
         <div class="info-card">
-            <h3>👤 個人體態設定</h3>
-            <div class="input-group"><label>身高 (cm)</label><input type="number" id="height" value="170" oninput="calculatePlan()"></div>
-            <div class="input-group"><label>目前體重 (kg)</label><input type="number" id="weight" value="70" oninput="calculatePlan()"></div>
-            <div class="input-group"><label>目標體重 (kg)</label><input type="number" id="targetWeight" value="65" oninput="calculatePlan()"></div>
-            <div class="stat-grid">
-                <div class="stat-item"><div class="stat-label">目前 BMI</div><div class="stat-val" id="bmiVal">--</div></div>
-                <div class="stat-item"><div class="stat-label">每日建議熱量</div><div class="stat-val" id="suggestedCal">--</div></div>
-            </div>
+            <h3>👤 個人設定</h3>
+            <input type="number" id="weight" value="70" placeholder="體重" oninput="calculatePlan()">
+            <input type="number" id="target" value="65" placeholder="目標體重" oninput="calculatePlan()">
+            <div id="suggested" style="margin-top:10px; color: var(--secondary); font-weight:bold;"></div>
         </div>
-        <div class="info-card">
-            <h3>📊 營養素目標 (g)</h3>
-            <div class="stat-grid">
-                <div class="stat-item"><div class="stat-label">蛋白質</div><div class="stat-val" style="color: #e67e22" id="goalP">--</div></div>
-                <div class="stat-item"><div class="stat-label">碳水</div><div class="stat-val" style="color: #2980b9" id="goalC">--</div></div>
-                <div class="stat-item"><div class="stat-label">脂肪</div><div class="stat-val" style="color: #f1c40f" id="goalF">--</div></div>
-            </div>
-        </div>
+        
     </div>
 
     <div class="chat-section">
-        <div class="chat-header">🍎 AI 營養師：每日飲食監督</div>
+        <div class="chat-header">🍎 AI 視覺助理</div>
         <div class="macro-bar">
-            <div class="macro-item"><div class="macro-name">剩餘熱量</div><div class="macro-remain remain-cal" id="remCal">--</div></div>
-            <div class="macro-item"><div class="macro-name">剩餘蛋白(g)</div><div class="macro-remain" id="remP">--</div></div>
-            <div class="macro-item"><div class="macro-name">剩餘碳水(g)</div><div class="macro-remain" id="remC">--</div></div>
-            <div class="macro-item"><div class="macro-name">剩餘脂肪(g)</div><div class="macro-remain" id="remF">--</div></div>
+            <div>剩餘熱量<br><span class="macro-remain" id="remCal">--</span></div>
+            <div>蛋白質(g)<br><span class="macro-remain" id="remP">--</span></div>
+            <div>碳水(g)<br><span class="macro-remain" id="remC">--</span></div>
+            <div>脂肪(g)<br><span class="macro-remain" id="remF">--</span></div>
         </div>
+
         <div class="chat-window" id="chatWindow">
-            <div class="msg ai-msg">設定好左側資料後，請輸入你剛才吃了什麼？我會自動估算並扣除額度。</div>
+            <div class="msg ai-msg">你好！你可以點擊左下角「📷」拍照上傳晚餐，我會幫你估算熱量。</div>
         </div>
+
+        <div id="camera-modal">
+            <video id="video" autoplay></video>
+            <div class="cam-controls">
+                <button onclick="takePhoto()" style="background:white; color:black; padding:15px; border-radius:50%;">📸 拍攝</button>
+                <button onclick="closeCamera()" style="background:red; color:white; padding:10px 20px; border-radius:10px;">取消</button>
+            </div>
+        </div>
+
         <div class="input-area">
-            <input type="text" id="userInput" placeholder="例如：午餐吃雞胸肉、蛋白飲、一個地瓜" onkeypress="if(event.keyCode==13) sendMessage()">
-            <button onclick="sendMessage()" style="background:var(--primary); color:white; border:none; border-radius:20px; padding:0 20px; cursor:pointer;">紀錄</button>
+            <button class="icon-btn" onclick="openCamera()">📷</button>
+            <input type="text" id="userInput" placeholder="或手動輸入食物..." onkeypress="if(event.keyCode==13) handleText()">
+            <button onclick="handleText()" style="background:var(--primary); color:white; border:none; border-radius:20px; padding:8px 20px;">發送</button>
         </div>
+        <canvas id="canvas" style="display:none;"></canvas>
     </div>
 </div>
 
 <script>
-    let currentData = { cal: 0, p: 0, c: 0, f: 0 };
-    let goals = { cal: 0, p: 0, c: 0, f: 0 };
+    let goals = { cal: 2000, p: 120, c: 200, f: 50 };
+    let current = { cal: 0, p: 0, c: 0, f: 0 };
 
-    function calculatePlan() {
-        const h = document.getElementById('height').value / 100;
-        const w = document.getElementById('weight').value;
-        const tw = document.getElementById('targetWeight').value;
-        
-        if (h > 0 && w > 0) {
-            const bmi = (w / (h * h)).toFixed(1);
-            document.getElementById('bmiVal').innerText = bmi;
-
-            // 減脂建議熱量估算：體重 * 25 (低強度減脂)
-            goals.cal = Math.round(w * 25);
-            // 蛋白質設定：體重 * 1.8g
-            goals.p = Math.round(w * 1.8);
-            // 脂肪設定：總熱量 25% (1g 脂肪 = 9kcal)
-            goals.f = Math.round((goals.cal * 0.25) / 9);
-            // 碳水設定：剩下熱量 (1g 碳水/蛋白 = 4kcal)
-            goals.c = Math.round((goals.cal - (goals.p * 4) - (goals.f * 9)) / 4);
-
-            updateDisplay();
-        }
+    // 1. 相機功能
+    async function openCamera() {
+        const modal = document.getElementById('camera-modal');
+        const video = document.getElementById('video');
+        modal.style.display = 'flex';
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
     }
 
-    // 食物資料庫：[熱量, 蛋白質, 碳水, 脂肪]
-    const foodDb = {
-        "雞胸肉": [165, 31, 0, 3],
-        "蛋白飲": [120, 25, 3, 1],
-        "地瓜": [120, 1, 28, 0],
-        "蛋": [75, 7, 1, 5],
-        "便當": [750, 30, 80, 35],
-        "沙拉": [100, 2, 10, 5],
-        "白飯": [200, 4, 45, 0],
-        "無糖豆漿": [100, 10, 5, 4]
-    };
+    function closeCamera() {
+        const video = document.getElementById('video');
+        const stream = video.srcObject;
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        document.getElementById('camera-modal').style.display = 'none';
+    }
 
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        const text = input.value;
-        if (!text) return;
-
-        addMessage(text, 'user-msg');
-
-        let feedback = "收到紀錄！";
-        let found = false;
-
-        for (let food in foodDb) {
-            if (text.includes(food)) {
-                currentData.cal += foodDb[food][0];
-                currentData.p += foodDb[food][1];
-                currentData.c += foodDb[food][2];
-                currentData.f += foodDb[food][3];
-                feedback = `偵測到「${food}」，已為您扣除營養額度。`;
-                found = true;
-                break;
-            }
-        }
-
-        if(!found) {
-            currentData.cal += 300; // 預設值
-            feedback = "無法精確辨識食物，已預扣 300 大卡。";
-        }
-
+    function takePhoto() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        closeCamera();
+        addMessageWithImage("正在分析圖片中的食物...", dataUrl);
+        
+        // 模擬 AI 辨識分析
         setTimeout(() => {
-            addMessage(feedback, 'ai-msg');
-            updateDisplay();
-        }, 500);
+            simulateAIAnalysis("圖片內容辨識為：【舒肥雞胸肉餐盒】。");
+        }, 1500);
+    }
 
+    // 2. 模擬分析邏輯
+    function simulateAIAnalysis(prefix) {
+        const mockCal = 450, mockP = 35, mockC = 40, mockF = 12;
+        current.cal += mockCal; current.p += mockP; current.c += mockC; current.f += mockF;
+        
+        const feedback = `${prefix}\n估算：${mockCal}大卡 (P:${mockP}g / C:${mockC}g / F:${mockF}g)。已自動扣除額度。`;
+        addMessage(feedback, 'ai-msg');
+        updateUI();
+    }
+
+    function handleText() {
+        const input = document.getElementById('userInput');
+        if (!input.value) return;
+        addMessage(input.value, 'user-msg');
+        simulateAIAnalysis(`手動輸入記錄成功：${input.value}。`);
         input.value = "";
     }
 
-    function updateDisplay() {
-        document.getElementById('suggestedCal').innerText = goals.cal;
-        document.getElementById('goalP').innerText = goals.p;
-        document.getElementById('goalC').innerText = goals.c;
-        document.getElementById('goalF').innerText = goals.f;
-
-        document.getElementById('remCal').innerText = goals.cal - currentData.cal;
-        document.getElementById('remP').innerText = goals.p - currentData.p;
-        document.getElementById('remC').innerText = goals.c - currentData.c;
-        document.getElementById('remF').innerText = goals.f - currentData.f;
-    }
-
     function addMessage(text, className) {
-        const window = document.getElementById('chatWindow');
-        const div = document.createElement('div');
-        div.className = 'msg ' + className;
-        div.innerText = text;
-        window.appendChild(div);
-        window.scrollTop = window.scrollHeight;
+        const win = document.getElementById('chatWindow');
+        const d = document.createElement('div');
+        d.className = 'msg ' + className;
+        d.innerText = text;
+        win.appendChild(d);
+        win.scrollTop = win.scrollHeight;
     }
 
-    // 初始執行一次
+    function addMessageWithImage(text, src) {
+        const win = document.getElementById('chatWindow');
+        const d = document.createElement('div');
+        d.className = 'msg user-msg';
+        d.innerHTML = `<div>${text}</div><img src="${src}" class="img-preview">`;
+        win.appendChild(d);
+        win.scrollTop = win.scrollHeight;
+    }
+
+    function calculatePlan() {
+        const w = document.getElementById('weight').value;
+        goals.cal = w * 25;
+        goals.p = w * 1.8;
+        goals.f = (goals.cal * 0.25) / 9;
+        goals.c = (goals.cal - (goals.p * 4) - (goals.f * 9)) / 4;
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('suggested').innerText = `目標：${Math.round(goals.cal)} kcal`;
+        document.getElementById('remCal').innerText = Math.round(goals.cal - current.cal);
+        document.getElementById('remP').innerText = Math.round(goals.p - current.p);
+        document.getElementById('remC').innerText = Math.round(goals.c - current.c);
+        document.getElementById('remF').innerText = Math.round(goals.f - current.f);
+    }
+
     calculatePlan();
 </script>
-
 </body>
 </html>
