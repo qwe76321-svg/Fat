@@ -3,211 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 溫情營養師 | 懂你的減重夥伴</title>
+    <title>AI 營養師 Pro | 歷史紀錄與存檔版</title>
     <style>
-        :root { --primary: #27ae60; --secondary: #2980b9; --bg: #f5f7fa; --accent: #e74c3c; }
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background: var(--bg); margin: 0; }
+        :root { --primary: #27ae60; --secondary: #2980b9; --bg: #f5f7fa; }
+        body { font-family: 'PingFang TC', sans-serif; background: var(--bg); margin: 0; padding-bottom: 70px; }
         
-        /* 介面框架 */
-        .tab-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); z-index: 1000; }
-        .tab-btn { flex: 1; padding: 18px; border: none; background: none; font-size: 1rem; color: #aab; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { color: var(--primary); font-weight: bold; }
+        /* Tab Bar */
+        .tab-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -3px 15px rgba(0,0,0,0.1); z-index: 1000; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-size: 0.9rem; color: #888; cursor: pointer; }
+        .tab-btn.active { color: var(--primary); font-weight: bold; border-top: 3px solid var(--primary); }
 
-        .page { display: none; height: 100vh; padding-bottom: 70px; box-sizing: border-box; }
-        .page.active { display: flex; flex-direction: column; }
+        .page { display: none; min-height: 100vh; flex-direction: column; }
+        .page.active { display: flex; }
 
-        /* 聊天室優化 */
-        #chat-page { background: #f0f2f5; }
-        .chat-header { background: linear-gradient(135deg, var(--primary), #2ecc71); color: white; padding: 20px; text-align: center; font-size: 1.2rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .macro-summary { background: white; padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; border-bottom: 1px solid #eee; }
-        .stat-box { text-align: center; }
-        .val { display: block; font-size: 1.1rem; font-weight: bold; color: var(--secondary); margin-top: 4px; }
-        .label { font-size: 0.7rem; color: #99a; }
+        /* 聊天與日期切換 */
+        .header-box { background: var(--primary); color: white; padding: 10px 20px; position: sticky; top: 0; z-index: 100; }
+        .date-picker-area { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.1); padding: 5px 15px; border-radius: 20px; margin-top: 5px; }
+        input[type="date"] { background: transparent; border: none; color: white; font-size: 1rem; outline: none; }
 
-        .chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        
-        /* 訊息泡泡升級 */
-        .msg { max-width: 85%; padding: 14px 18px; border-radius: 20px; line-height: 1.6; font-size: 0.95rem; position: relative; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2); }
-        .ai { align-self: flex-start; background: white; color: #34495e; border-bottom-left-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .macro-summary { background: white; padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; text-align: center; border-bottom: 1px solid #ddd; }
+        .val { display: block; font-size: 0.9rem; font-weight: bold; color: var(--secondary); }
 
-        .mood-tag { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; display: block; }
-        
-        /* 表格美化 */
-        .nutrition-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.8rem; background: #fafafa; border-radius: 10px; overflow: hidden; border: 1px solid #eee; }
-        .nutrition-table th { background: #f1f1f1; padding: 8px; color: #7f8c8d; }
-        .nutrition-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold; }
+        .chat-window { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 300px; }
+        .msg { max-width: 85%; padding: 12px; border-radius: 15px; font-size: 0.95rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 5px; }
+        .user { align-self: flex-end; background: #dcf8c6; }
+        .ai { align-self: flex-start; background: white; }
+
+        .nutrition-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.8rem; background: #fdfdfd; }
+        .nutrition-table th, .nutrition-table td { border: 1px solid #eee; padding: 4px; text-align: center; }
+
+        /* 歷史頁面樣式 */
+        .history-card { background: white; margin: 10px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .week-title { color: var(--secondary); font-weight: bold; margin-top: 20px; padding-left: 10px; border-left: 4px solid var(--secondary); }
 
         /* 輸入區 */
-        .input-area { padding: 15px; background: white; display: flex; gap: 10px; align-items: center; border-top: 1px solid #eee; }
-        input[type="text"] { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #e0e0e0; outline: none; background: #f9f9f9; }
-        .btn-action { width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.2s; }
-        .btn-camera { background: #f0f0f0; color: #555; }
-        .btn-send { background: var(--primary); color: white; }
+        .input-area { padding: 10px; background: white; display: flex; gap: 8px; position: fixed; bottom: 65px; width: 100%; box-sizing: border-box; }
+        input[type="text"] { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #ddd; }
+        .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; }
 
-        /* 設定頁 */
-        #settings-page { padding: 30px; background: white; }
-        .settings-header { margin-bottom: 25px; }
-        .input-card { background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #edf2f7; }
-        label { display: block; font-size: 0.9rem; font-weight: bold; color: #4a5568; margin-bottom: 8px; }
-        input[type="number"] { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 1rem; }
-
+        /* 相機模態框 */
         #cam-layer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2000; flex-direction: column; }
+        video { width: 100%; height: 80%; object-fit: cover; }
     </style>
 </head>
 <body>
 
     <div id="chat-page" class="page active">
-        <div class="chat-header">🌿 你的專屬營養夥伴</div>
-        <div class="macro-summary">
-            <div class="stat-box"><span class="label">剩餘熱量</span><span class="val" id="remCal">--</span></div>
-            <div class="stat-box"><span class="label">要補蛋白</span><span class="val" id="remP">--</span></div>
-            <div class="stat-box"><span class="label">碳水額度</span><span class="val" id="remC">--</span></div>
-            <div class="stat-box"><span class="label">脂肪限制</span><span class="val" id="remF">--</span></div>
-        </div>
-        
-        <div class="chat-window" id="chatWindow">
-            <div class="msg ai">
-                <span class="mood-tag" style="color:#3498db;">👋 暖心問候</span>
-                嘿！今天過得好嗎？不管是忙碌還是悠閒，都要記得好好吃飯喔。我已經準備好幫你紀錄營養了，今天第一餐吃了什麼呢？
+        <div class="header-box">
+            <strong>飲食紀錄助理</strong>
+            <div class="date-picker-area">
+                <span>選擇日期:</span>
+                <input type="date" id="currentDate" onchange="loadDayData()">
             </div>
         </div>
+        
+        <div class="macro-summary">
+            <div>剩餘卡路里<span class="val" id="remCal">--</span></div>
+            <div>剩餘蛋白<span class="val" id="remP">--</span></div>
+            <div>剩餘碳水<span class="val" id="remC">--</span></div>
+            <div>剩餘脂肪<span class="val" id="remF">--</span></div>
+        </div>
+
+        <div class="chat-window" id="chatWindow"></div>
 
         <div class="input-area">
-            <button class="btn-action btn-camera" onclick="openCamera()">📷</button>
-            <input type="text" id="userInput" placeholder="跟我說說你吃了什麼..." onkeypress="if(event.keyCode==13) handleInput()">
-            <button class="btn-action btn-send" onclick="handleInput()">✈️</button>
+            <button class="circle-btn" onclick="openCamera()">📷</button>
+            <input type="text" id="userInput" placeholder="輸入今日飲食..." onkeypress="if(event.keyCode==13) handleInput()">
+            <button class="circle-btn" style="background:var(--primary); color:white;" onclick="handleInput()">✈️</button>
         </div>
+    </div>
+
+    <div id="history-page" class="page">
+        <div class="header-box" style="text-align:center;"><strong>📊 每週數據存檔</strong></div>
+        <div id="historyList" style="padding-bottom: 80px;">
+            </div>
+        <button onclick="exportData()" style="margin:20px; padding:10px; background:var(--secondary); color:white; border:none; border-radius:5px;">匯出備份資料 (JSON)</button>
     </div>
 
     <div id="settings-page" class="page">
-        <div class="settings-header">
-            <h2>個人狀態設定</h2>
-            <p style="color:#718096;">我們會根據你的數據，為你量身打造每日的營養配比。</p>
-        </div>
-        <div class="input-card">
-            <label>目前的體重 (kg)</label>
-            <input type="number" id="weight" value="70" oninput="recalc()">
+        <div class="header-box" style="text-align:center;"><strong>⚙️ 個人設定</strong></div>
+        <div style="padding:20px; background:white; margin:15px; border-radius:12px;">
+            <label>目前體重 (kg)</label>
+            <input type="number" id="weight" value="70" oninput="saveSettings()">
             <br><br>
             <label>身高 (cm)</label>
-            <input type="number" id="height" value="170" oninput="recalc()">
-            <div style="margin-top:20px; color:var(--secondary);">
-                <strong>你的 BMI：<span id="bmiDisplay">--</span></strong>
-            </div>
+            <input type="number" id="height" value="170" oninput="saveSettings()">
+            <p>設定將自動影響每日建議攝取量。</p>
         </div>
-        
     </div>
 
     <nav class="tab-bar">
-        <button class="tab-btn active" onclick="showPage('chat-page', this)">💬 陪你聊聊</button>
-        <button class="tab-btn" onclick="showPage('settings-page', this)">⚙️ 我的數據</button>
+        <button class="tab-btn active" onclick="showPage('chat-page', this)">💬 對話紀錄</button>
+        <button class="tab-btn" onclick="showPage('history-page', this)">📊 每週存檔</button>
+        <button class="tab-btn" onclick="showPage('settings-page', this)">⚙️ 設定</button>
     </nav>
 
     <div id="cam-layer">
         <video id="video" autoplay playsinline></video>
         <div style="flex:1; display:flex; justify-content:center; align-items:center; gap:40px;">
-            <button onclick="takePhoto()" style="width:75px; height:75px; border-radius:50%; background:white; border:none; font-size:1.8rem; box-shadow: 0 0 20px rgba(255,255,255,0.4);">📸</button>
-            <button onclick="closeCamera()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:10px 25px; border-radius:30px;">取消</button>
+            <button onclick="takePhoto()" style="width:70px; height:70px; border-radius:50%; background:white;">📸</button>
+            <button onclick="closeCamera()" style="color:white; background:none; border:none;">取消</button>
         </div>
     </div>
     <canvas id="canvas" style="display:none;"></canvas>
 
     <script>
-        let goals = { cal: 0, p: 0, c: 0, f: 0 };
-        let eaten = { cal: 0, p: 0, c: 0, f: 0 };
+        // 初始化日期為今天
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('currentDate').value = today;
+
+        // 資料結構： { "2023-10-27": { messages: [], eaten: {cal, p, c, f} } }
+        let db = JSON.parse(localStorage.getItem('dietDB')) || {};
+        let settings = JSON.parse(localStorage.getItem('dietSettings')) || { weight: 70, height: 170 };
 
         function showPage(id, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             btn.classList.add('active');
+            if(id === 'history-page') renderHistory();
         }
 
-        function recalc() {
-            const w = document.getElementById('weight').value;
-            const h = document.getElementById('height').value / 100;
-            if (w > 0 && h > 0) {
-                document.getElementById('bmiDisplay').innerText = (w / (h * h)).toFixed(1);
-                goals.cal = w * 25;
-                goals.p = w * 1.8;
-                goals.f = (goals.cal * 0.25) / 9;
-                goals.c = (goals.cal - (goals.p * 4) - (goals.f * 9)) / 4;
-                updateStats();
+        function saveSettings() {
+            settings.weight = document.getElementById('weight').value;
+            settings.height = document.getElementById('height').value;
+            localStorage.setItem('dietSettings', JSON.stringify(settings));
+            loadDayData(); // 重新計算目標
+        }
+
+        function loadDayData() {
+            const date = document.getElementById('currentDate').value;
+            const win = document.getElementById('chatWindow');
+            win.innerHTML = "";
+
+            if(!db[date]) {
+                db[date] = { messages: [], eaten: {cal:0, p:0, c:0, f:0} };
+                addMessage("ai", `📅 你好！這是 ${date} 的全新紀錄。準備好開始了嗎？`);
+            } else {
+                db[date].messages.forEach(m => {
+                    const d = document.createElement('div');
+                    d.className = 'msg ' + m.role;
+                    d.innerHTML = m.content;
+                    win.appendChild(d);
+                });
             }
+            updateStats();
         }
 
         function updateStats() {
+            const date = document.getElementById('currentDate').value;
+            const eaten = db[date].eaten;
+            const w = settings.weight;
+            
+            // 建議目標
+            const goals = {
+                cal: w * 25,
+                p: w * 1.8,
+                f: (w * 25 * 0.25) / 9,
+                c: (w * 25 - (w * 1.8 * 4) - (w * 25 * 0.25)) / 4
+            };
+
             document.getElementById('remCal').innerText = Math.round(goals.cal - eaten.cal);
             document.getElementById('remP').innerText = Math.round(goals.p - eaten.p) + 'g';
             document.getElementById('remC').innerText = Math.round(goals.c - eaten.c) + 'g';
             document.getElementById('remF').innerText = Math.round(goals.f - eaten.f) + 'g';
         }
 
-        // 人性化回覆引擎
-        function getMoodResponse(foodName, data) {
-            let mood = { tag: "✨ 紀錄成功", color: "#27ae60", comment: "這餐看起來很均衡喔！繼續保持這個節奏。" };
-
-            if (data.p > 25) {
-                mood = { tag: "💪 肌肉加油", color: "#e67e22", comment: "哇！蛋白質補好補滿耶！這對你的肌肉修復超有幫助，太棒了！" };
-            } else if (data.cal > 600) {
-                mood = { tag: "😋 滿足感十足", color: "#e74c3c", comment: "這餐看起來份量不少喔！既然享受了美食，晚點記得多走幾步路散散步吧～" };
-            } else if (foodName.includes("菜") || data.fiber > 2) {
-                mood = { tag: "🥗 健康達人", color: "#2ecc71", comment: "你居然有點蔬菜！我太欣慰了，你的腸胃現在一定在跟你說謝謝。" };
-            }
-
-            return `
-                <div class="msg ai">
-                    <span class="mood-tag" style="color:${mood.color};">${mood.tag}</span>
-                    ${mood.comment}
-                    <table class="nutrition-table">
-                        <tr><th>熱量</th><th>蛋白</th><th>碳水</th><th>脂肪</th></tr>
-                        <tr><td>${data.cal}</td><td>${data.p}g</td><td>${data.c}g</td><td>${data.f}g</td></tr>
-                    </table>
-                </div>
-            `;
+        function addMessage(role, content) {
+            const date = document.getElementById('currentDate').value;
+            db[date].messages.push({ role, content });
+            localStorage.setItem('dietDB', JSON.stringify(db));
+            
+            const win = document.getElementById('chatWindow');
+            const d = document.createElement('div');
+            d.className = 'msg ' + role;
+            d.innerHTML = content;
+            win.appendChild(d);
+            win.scrollTop = win.scrollHeight;
         }
-
-        const foodData = {
-            "雞胸肉": { cal: 165, p: 31, c: 0, f: 3, fiber: 0 },
-            "白飯": { cal: 140, p: 3, c: 30, f: 0, fiber: 1 },
-            "燙青菜": { cal: 50, p: 2, c: 5, f: 3, fiber: 3 },
-            "珍奶": { cal: 650, p: 3, c: 90, f: 20, fiber: 0 }
-        };
 
         function handleInput() {
             const input = document.getElementById('userInput');
             const val = input.value.trim();
-            if (!val) return;
+            if(!val) return;
 
-            const win = document.getElementById('chatWindow');
-            win.innerHTML += `<div class="msg user">${val}</div>`;
+            addMessage("user", val);
             
-            let result = foodData[val] || { cal: 300, p: 15, c: 35, f: 10, fiber: 1 };
-            eaten.cal += result.cal; eaten.p += result.p; eaten.c += result.c; eaten.f += result.f;
+            // 簡單模擬分析 (實際可擴充資料庫)
+            const mock = { cal: 350, p: 20, c: 40, f: 12 };
+            const date = document.getElementById('currentDate').value;
+            db[date].eaten.cal += mock.cal;
+            db[date].eaten.p += mock.p;
+            db[date].eaten.c += mock.c;
+            db[date].eaten.f += mock.f;
 
             setTimeout(() => {
-                win.innerHTML += getMoodResponse(val, result);
+                const table = `
+                    <div class="mood-tag" style="color:#27ae60;">✨ 紀錄成功</div>
+                    已自動辨識並存檔。
+                    <table class="nutrition-table">
+                        <tr><th>熱量</th><th>蛋白</th><th>碳水</th><th>脂肪</th></tr>
+                        <tr><td>${mock.cal}</td><td>${mock.p}g</td><td>${mock.c}g</td><td>${mock.f}g</td></tr>
+                    </table>
+                `;
+                addMessage("ai", table);
                 updateStats();
-                win.scrollTop = win.scrollHeight;
-            }, 700);
+            }, 600);
             input.value = "";
         }
 
-        // 相機邏輯與之前相同，略
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = "";
+            
+            // 將日期按週分組
+            const sortedDates = Object.keys(db).sort().reverse();
+            let currentWeek = "";
+
+            sortedDates.forEach(date => {
+                const d = new Date(date);
+                const weekStr = `第 ${getWeekNumber(d)} 週 (${d.getFullYear()})`;
+                
+                if(weekStr !== currentWeek) {
+                    currentWeek = weekStr;
+                    list.innerHTML += `<div class="week-title">${currentWeek}</div>`;
+                }
+
+                const data = db[date].eaten;
+                list.innerHTML += `
+                    <div class="history-card">
+                        <strong>${date}</strong><br>
+                        總攝取: ${Math.round(data.cal)} kcal | P: ${Math.round(data.p)}g | C: ${Math.round(data.c)}g
+                    </div>
+                `;
+            });
+        }
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href",     dataStr);
+            downloadAnchorNode.setAttribute("download", "diet_backup.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // 相機啟動相關邏輯 (簡化)
         async function openCamera() {
-            const layer = document.getElementById('cam-layer');
-            const video = document.getElementById('video');
-            layer.style.display = 'flex';
+            document.getElementById('cam-layer').style.display = 'flex';
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            video.srcObject = stream;
+            document.getElementById('video').srcObject = stream;
         }
         function closeCamera() {
-            const video = document.getElementById('video');
-            const stream = video.srcObject;
-            if (stream) stream.getTracks().forEach(t => t.stop());
+            const stream = document.getElementById('video').srcObject;
+            if(stream) stream.getTracks().forEach(t => t.stop());
             document.getElementById('cam-layer').style.display = 'none';
         }
         function takePhoto() {
@@ -217,17 +274,14 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             const data = canvas.toDataURL('image/png');
             closeCamera();
-            const win = document.getElementById('chatWindow');
-            win.innerHTML += `<div class="msg user">📸 讓你看一下我吃的...<br><img src="${data}" style="width:100%; border-radius:15px; margin-top:10px;"></div>`;
-            setTimeout(() => {
-                const res = { cal: 480, p: 25, c: 40, f: 18, fiber: 2 };
-                eaten.cal += res.cal; eaten.p += res.p; eaten.c += res.c; eaten.f += res.f;
-                win.innerHTML += getMoodResponse("拍照辨識", res);
-                updateStats();
-                win.scrollTop = win.scrollHeight;
-            }, 1500);
+            addMessage("user", `<img src="${data}" style="width:100%; border-radius:10px;">`);
+            setTimeout(() => addMessage("ai", "📸 影像已存檔，建議攝取 450 kcal。"), 1000);
         }
-        recalc();
+
+        // 初始化
+        document.getElementById('weight').value = settings.weight;
+        document.getElementById('height').value = settings.height;
+        loadDayData();
     </script>
 </body>
 </html>
