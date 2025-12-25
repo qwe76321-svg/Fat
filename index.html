@@ -3,122 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎄 聖誕交換禮物轉盤 🎁</title>
+    <title>🎄 聖誕 18 格精確轉盤 🎁</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background: radial-gradient(circle, #1a472a 0%, #0d2b1a 100%); /* 深聖誕綠背景 */
-            color: #fff;
-            font-family: "Microsoft JhengHei", sans-serif;
-            overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; margin: 0;
+            background: radial-gradient(circle, #1a472a 0%, #0d2b1a 100%);
+            color: #fff; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
         }
-
-        /* 雪花動畫 */
-        .snowflake {
-            position: absolute;
-            top: -10px;
-            color: white;
-            user-select: none;
-            z-index: 1000;
-            pointer-events: none;
-            animation: fall linear infinite;
-        }
-        @keyframes fall {
-            to { transform: translateY(105vh) rotate(360deg); }
-        }
-
-        .config-section {
-            z-index: 10;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 2px solid #c41e3a; /* 聖誕紅 */
-            text-align: center;
-        }
-
-        select {
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 8px;
-            background: white;
-            border: 2px solid #ffd700;
-            outline: none;
-        }
-
-        .wheel-container {
-            position: relative;
-            width: 350px;
-            height: 350px;
-            z-index: 5;
-        }
-
-        .pointer {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #ffd700; /* 金色指針 */
-            z-index: 20;
-            filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
-        }
-
-        #wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 8px solid #ffd700;
-            box-sizing: border-box;
-            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
-            background-color: white;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-
-        #spin-btn {
-            margin-top: 30px;
-            padding: 15px 60px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            cursor: pointer;
-            background: linear-gradient(45deg, #c41e3a, #ff4d4d); /* 聖誕紅漸層 */
-            color: white;
-            border: 2px solid #ffd700;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
-            transition: 0.3s;
-            z-index: 10;
-        }
-
-        #spin-btn:hover:not(:disabled) {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px #ffd700;
-        }
-
-        #spin-btn:disabled {
-            filter: grayscale(1);
-            cursor: not-allowed;
-        }
-
-        h1 {
-            text-shadow: 0 0 10px #c41e3a;
-            letter-spacing: 2px;
-        }
+        .snowflake { position: absolute; top: -10px; color: white; user-select: none; z-index: 1000; pointer-events: none; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+        .config-section { z-index: 10; margin-bottom: 25px; padding: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 2px solid #c41e3a; text-align: center; }
+        select { padding: 10px; font-size: 1rem; border-radius: 8px; background: white; border: 2px solid #ffd700; outline: none; }
+        .wheel-container { position: relative; width: 380px; height: 380px; z-index: 5; }
+        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 35px solid #ffd700; z-index: 20; filter: drop-shadow(0 0 10px rgba(255,215,0,0.8)); }
+        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #ffd700; box-sizing: border-box; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); background-color: white; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+        #spin-btn { margin-top: 30px; padding: 15px 60px; font-size: 1.4rem; font-weight: bold; cursor: pointer; background: linear-gradient(45deg, #c41e3a, #ff4d4d); color: white; border: 2px solid #ffd700; border-radius: 50px; box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4); transition: 0.3s; z-index: 10; }
+        #spin-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 20px #ffd700; }
+        #spin-btn:disabled { filter: grayscale(1); cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <h1>🎄 聖誕快樂！隨機抽籤輪盤 🎁</h1>
+    <h1>🎄 聖誕交換禮物 (18格版) 🎁</h1>
 
     <div class="config-section">
         <label><strong>🎅 我是：</strong></label>
@@ -135,13 +43,13 @@
     
     <div class="wheel-container">
         <div class="pointer"></div>
-        <canvas id="wheel" width="400" height="400"></canvas>
+        <canvas id="wheel" width="500" height="500"></canvas>
     </div>
 
-    <button id="spin-btn">🌟 開始抽取獎勵 🌟</button>
+    <button id="spin-btn">🌟 抽取 3/18 的幸運 🌟</button>
 
     <script>
-        // 1. 產生雪花
+        // 雪花特效
         function createSnow() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -149,29 +57,31 @@
             snowflake.style.left = Math.random() * 100 + 'vw';
             snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
             snowflake.style.opacity = Math.random();
-            snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
             document.body.appendChild(snowflake);
-            setTimeout(() => { snowflake.remove(); }, 5000);
+            setTimeout(() => snowflake.remove(), 5000);
         }
-        setInterval(createSnow, 100);
+        setInterval(createSnow, 150);
 
-        // 2. 轉盤邏輯
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         const btn = document.getElementById('spin-btn');
         const userSelect = document.getElementById('user-select');
 
-        const allNames = ['思屏', '明諺', '柏融', '芷綺', '宛蓁', '博晏'];
-        // 聖誕配色方案：紅白綠金相間
-        const colors = ['#c41e3a', '#2e7d32', '#c41e3a', '#2e7d32', '#c41e3a', '#2e7d32'];
+        // 將 6 人名單擴展為 18 格 (每人出現 3 次，且交錯排列)
+        const baseNames = ['思屏', '明諺', '柏融', '芷綺', '宛蓁', '博晏'];
+        const allSegments = [...baseNames, ...baseNames, ...baseNames]; 
+        // 聖誕配色
+        const colors = ['#c41e3a', '#2e7d32', '#1565c0', '#e67e22', '#8e44ad', '#2c3e50'];
+        const segmentColors = [...colors, ...colors, ...colors];
+
         const exclusions = {
             '思屏': ['思屏', '明諺'], '明諺': ['明諺', '思屏'],
             '柏融': ['柏融', '芷綺'], '芷綺': ['芷綺', '柏融'],
             '宛蓁': ['宛蓁', '博晏'], '博晏': ['博晏', '宛蓁']
         };
 
-        const numSegments = allNames.length;
-        const segmentDeg = 360 / numSegments;
+        const totalSlices = allSegments.length; // 18
+        const sliceDeg = 360 / totalSlices;
         let currentRotation = 0;
 
         function drawWheel() {
@@ -180,28 +90,26 @@
             const radius = centerX;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            for (let i = 0; i < numSegments; i++) {
-                const startAngle = (i * segmentDeg - 90 - segmentDeg / 2) * Math.PI / 180;
-                const endAngle = ((i + 1) * segmentDeg - 90 - segmentDeg / 2) * Math.PI / 180;
+            for (let i = 0; i < totalSlices; i++) {
+                const startAngle = (i * sliceDeg - 90 - sliceDeg / 2) * Math.PI / 180;
+                const endAngle = ((i + 1) * sliceDeg - 90 - sliceDeg / 2) * Math.PI / 180;
 
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.fillStyle = colors[i];
+                ctx.fillStyle = segmentColors[i];
                 ctx.fill();
                 ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1;
                 ctx.stroke();
 
                 ctx.save();
                 ctx.translate(centerX, centerY);
-                ctx.rotate(startAngle + (segmentDeg / 2) * Math.PI / 180);
+                ctx.rotate(startAngle + (sliceDeg / 2) * Math.PI / 180);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "white";
-                ctx.font = "bold 22px Arial";
-                ctx.shadowBlur = 4;
-                ctx.shadowColor = "rgba(0,0,0,0.5)";
-                ctx.fillText(allNames[i], radius - 30, 10);
+                ctx.font = "bold 16px Arial"; // 18格格子較小，字體縮小
+                ctx.fillText(allSegments[i], radius - 25, 6);
                 ctx.restore();
             }
         }
@@ -209,7 +117,7 @@
         function spin() {
             const currentUser = userSelect.value;
             if (!currentUser) {
-                Swal.fire({ icon: 'warning', title: '喔喔！', text: '請先選擇你是誰，聖誕老公公才知道要避開誰喔！', confirmButtonColor: '#c41e3a' });
+                Swal.fire({ icon: 'warning', title: '聖誕提醒', text: '請先選擇身分！', confirmButtonColor: '#c41e3a' });
                 return;
             }
 
@@ -217,29 +125,29 @@
             
             let targetIndex;
             const myExclusions = exclusions[currentUser];
+            
+            // 隨機抽選 0-17 之間的索引，直到抽到的名字符合規則
             do {
-                targetIndex = Math.floor(Math.random() * numSegments);
-            } while (myExclusions.includes(allNames[targetIndex]));
+                targetIndex = Math.floor(Math.random() * totalSlices);
+            } while (myExclusions.includes(allSegments[targetIndex]));
 
-            const stopAt = 360 - (targetIndex * segmentDeg);
-            const totalRotate = currentRotation + (360 * 10) + (stopAt - (currentRotation % 360) + 360) % 360;
+            const stopAt = 360 - (targetIndex * sliceDeg);
+            const totalRotate = currentRotation + (360 * 12) + (stopAt - (currentRotation % 360) + 360) % 360;
             
             currentRotation = totalRotate;
             canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-            // 4秒後彈出結果
             setTimeout(() => {
                 Swal.fire({
-                    title: '🎉 抽選結果 🎉',
-                    html: `<div style="font-size: 1.5rem;">恭喜 <b>${currentUser}</b>！<br>你抽到的是：<br><span style="font-size: 2.5rem; color: #c41e3a; font-weight: bold;">✨ ${allNames[targetIndex]} ✨</span></div>`,
+                    title: '🎄 抽到禮物囉！',
+                    html: `<div style="font-size: 1.2rem;"><b>${currentUser}</b> 的幸運星是：<br><span style="font-size: 2.5rem; color: #c41e3a; font-weight: bold;">🎁 ${allSegments[targetIndex]} 🎁</span></div>`,
                     icon: 'success',
-                    background: '#fff url(https://www.transparenttextures.com/patterns/white-diamond-dark.png)',
-                    confirmButtonText: '太棒了！',
+                    confirmButtonText: 'Merry Christmas!',
                     confirmButtonColor: '#2e7d32',
-                    backdrop: `rgba(0,0,123,0.4) url("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJndnk3Z3R4Z3R4Z3R4Z3R4Z3R4Z3R4Z3R4Z3R4Z3R4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKLUnnyECCG13fW/giphy.gif") left top no-repeat`
+                    backdrop: `rgba(0,0,0,0.6)`
                 });
                 btn.disabled = false;
-            }, 4200);
+            }, 5200);
         }
 
         drawWheel();
