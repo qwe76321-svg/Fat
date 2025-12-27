@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎄 聖誕交換禮物系統 🎁</title>
+    <title>🎄 聖誕交換禮物：交叉排序版 🎁</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
@@ -48,7 +48,6 @@
         #spin-btn { background: linear-gradient(45deg, #c41e3a, #ff4d4d); color: white; }
         #reset-btn { background: #555; color: white; border-color: #ccc; }
         #spin-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 20px #ffd700; }
-        #reset-btn:hover { background: #333; }
         #spin-btn:disabled { filter: grayscale(1); cursor: not-allowed; }
 
         select { padding: 8px; width: 100%; font-size: 1rem; border-radius: 8px; margin-top: 10px; }
@@ -56,11 +55,11 @@
 </head>
 <body>
 
-    <h1>🎄 聖誕交換禮物：不重複中選系統 🎁</h1>
+    <h1>🎄 聖誕交換禮物 (交叉排序版) 🎁</h1>
 
     <div class="main-layout">
         <div class="config-section">
-            <h3>🎅 誰要抽籤？</h3>
+            <h3>🎅 我是：</h3>
             <select id="user-select">
                 <option value="">-- 請選擇名字 --</option>
                 <option value="思屏">思屏</option>
@@ -80,8 +79,7 @@
 
         <div class="record-section">
             <h3>📜 中選紀錄</h3>
-            <ul id="record-list" class="record-list">
-                </ul>
+            <ul id="record-list" class="record-list"></ul>
         </div>
     </div>
 
@@ -91,7 +89,7 @@
     </div>
 
     <script>
-        // 雪花特效
+        // 雪花效果
         setInterval(() => {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -110,13 +108,16 @@
         const recordList = document.getElementById('record-list');
         const remainingText = document.getElementById('remaining-count');
 
-        // 初始設定
         const originalNames = ['思屏', '明諺', '柏融', '芷綺', '宛蓁', '博晏'];
         let availableCandidates = [...originalNames];
-        let history = [];
         let currentRotation = 0;
 
-        const colors = ['#c41e3a', '#2e7d32', '#1565c0', '#e67e22', '#8e44ad', '#2c3e50'];
+        // 指定每個人固定的顏色
+        const colorMap = {
+            '思屏': '#c41e3a', '明諺': '#2e7d32', '柏融': '#1565c0',
+            '芷綺': '#e67e22', '宛蓁': '#8e44ad', '博晏': '#d35400'
+        };
+
         const exclusions = {
             '思屏': ['思屏', '明諺'], '明諺': ['明諺', '思屏'],
             '柏融': ['柏融', '芷綺'], '芷綺': ['芷綺', '柏融'],
@@ -129,16 +130,14 @@
             const radius = centerX;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 構建轉盤內容：每個候選人佔 3 格 (維持 3/18 機率感，若人數變少則比例增加)
+            // 交叉排序邏輯：將剩餘候選人重複 3 次並交錯排列
             let segments = [];
-            availableCandidates.forEach(name => {
-                segments.push(name, name, name);
-            });
+            for(let i=0; i<3; i++) {
+                segments = segments.concat(availableCandidates);
+            }
 
             if (segments.length === 0) {
-                ctx.fillStyle = "#333";
-                ctx.textAlign = "center";
-                ctx.font = "bold 30px Arial";
+                ctx.fillStyle = "#333"; ctx.textAlign = "center"; ctx.font = "bold 30px Arial";
                 ctx.fillText("全部抽完囉！", centerX, centerY);
                 return;
             }
@@ -147,16 +146,16 @@
             const sliceDeg = 360 / totalSlices;
 
             for (let i = 0; i < totalSlices; i++) {
+                const name = segments[i];
                 const startAngle = (i * sliceDeg - 90 - sliceDeg / 2) * Math.PI / 180;
                 const endAngle = ((i + 1) * sliceDeg - 90 - sliceDeg / 2) * Math.PI / 180;
 
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.fillStyle = colors[originalNames.indexOf(segments[i]) % colors.length];
+                ctx.fillStyle = colorMap[name];
                 ctx.fill();
-                ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(255,215,0,0.5)';
                 ctx.stroke();
 
                 ctx.save();
@@ -164,8 +163,8 @@
                 ctx.rotate(startAngle + (sliceDeg / 2) * Math.PI / 180);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "white";
-                ctx.font = totalSlices > 10 ? "bold 14px Arial" : "bold 20px Arial";
-                ctx.fillText(segments[i], radius - 25, 6);
+                ctx.font = totalSlices > 12 ? "bold 14px Arial" : "bold 18px Arial";
+                ctx.fillText(name, radius - 20, 7);
                 ctx.restore();
             }
             remainingText.innerText = `剩餘候選人：${availableCandidates.length} 位`;
@@ -173,59 +172,48 @@
 
         function spin() {
             const currentUser = userSelect.value;
-            if (!currentUser) {
-                Swal.fire('聖誕提醒', '請先選擇身分！', 'warning');
-                return;
-            }
+            if (!currentUser) { Swal.fire('提醒', '請先選擇你是誰！', 'warning'); return; }
 
-            // 過濾出符合規則的人選
             const myExclusions = exclusions[currentUser];
             const legalCandidates = availableCandidates.filter(c => !myExclusions.includes(c));
 
             if (legalCandidates.length === 0) {
-                Swal.fire('喔喔！', '剩餘名單中已無你可以抽取的對象。', 'info');
-                return;
+                Swal.fire('抽籤結束', '名單中已無您可以抽取的對象！', 'info'); return;
             }
 
             btn.disabled = true;
 
-            // 隨機選一個合法候選人
             const winner = legalCandidates[Math.floor(Math.random() * legalCandidates.length)];
             
-            // 計算轉盤中 winner 的所有位置
+            // 獲取當前轉盤上的順序來定位目標
             let segments = [];
-            availableCandidates.forEach(name => { segments.push(name, name, name); });
+            for(let i=0; i<3; i++) segments = segments.concat(availableCandidates);
+            
             const totalSlices = segments.length;
             const sliceDeg = 360 / totalSlices;
-            
-            // 隨機選 winner 的其中一個格位來停
             const possibleIndices = segments.map((name, idx) => name === winner ? idx : -1).filter(idx => idx !== -1);
             const targetIdx = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
 
             const stopAt = 360 - (targetIdx * sliceDeg);
-            const totalRotate = currentRotation + (360 * 10) + (stopAt - (currentRotation % 360) + 360) % 360;
+            const totalRotate = currentRotation + (360 * 12) + (stopAt - (currentRotation % 360) + 360) % 360;
             
             currentRotation = totalRotate;
             canvas.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
                 Swal.fire({
-                    title: '🎁 抽籤結果',
-                    html: `<b>${currentUser}</b> 抽中了 <b>${winner}</b>！`,
-                    icon: 'success'
+                    title: '🎄 恭喜抽中！',
+                    html: `<div style="font-size:1.2rem"><b>${currentUser}</b> ➜ <span style="color:#c41e3a; font-size:2rem"><b>${winner}</b></span></div>`,
+                    icon: 'success',
+                    confirmButtonColor: '#2e7d32'
                 });
 
-                // 更新歷史紀錄
-                history.push({ from: currentUser, to: winner });
                 const li = document.createElement('li');
                 li.className = 'record-item';
-                li.innerText = `🎅 ${currentUser} ➜ 🎁 ${winner}`;
+                li.innerHTML = `<b>${currentUser}</b> 抽中了 🎁 <b>${winner}</b>`;
                 recordList.prepend(li);
 
-                // 從候選名單中移除 winner
                 availableCandidates = availableCandidates.filter(c => c !== winner);
-                
-                // 重新繪製轉盤
                 drawWheel();
                 btn.disabled = false;
             }, 5200);
@@ -233,21 +221,15 @@
 
         function reset() {
             Swal.fire({
-                title: '確定要重置嗎？',
-                text: "所有紀錄與名單將恢復初始狀態！",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#c41e3a',
-                confirmButtonText: '是的，重新開始'
+                title: '重置轉盤？', text: "這將清除所有中選紀錄！", icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#c41e3a', confirmButtonText: '確定重置'
             }).then((result) => {
                 if (result.isConfirmed) {
                     availableCandidates = [...originalNames];
-                    history = [];
                     recordList.innerHTML = '';
                     currentRotation = 0;
                     canvas.style.transform = `rotate(0deg)`;
                     drawWheel();
-                    Swal.fire('已重置', '可以開始新的一輪抽選囉！', 'success');
                 }
             });
         }
