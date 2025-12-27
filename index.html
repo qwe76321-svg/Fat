@@ -3,86 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎄 聖誕 18 格精確轉盤 🎁</title>
+    <title>🎄 聖誕交換禮物系統 🎁</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; margin: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            min-height: 100vh; margin: 0; padding: 20px;
             background: radial-gradient(circle, #1a472a 0%, #0d2b1a 100%);
-            color: #fff; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden;
+            color: #fff; font-family: "Microsoft JhengHei", sans-serif; overflow-x: hidden;
         }
         .snowflake { position: absolute; top: -10px; color: white; user-select: none; z-index: 1000; pointer-events: none; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
-        .config-section { z-index: 10; margin-bottom: 25px; padding: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 2px solid #c41e3a; text-align: center; }
-        select { padding: 10px; font-size: 1rem; border-radius: 8px; background: white; border: 2px solid #ffd700; outline: none; }
-        .wheel-container { position: relative; width: 380px; height: 380px; z-index: 5; }
-        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 35px solid #ffd700; z-index: 20; filter: drop-shadow(0 0 10px rgba(255,215,0,0.8)); }
-        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #ffd700; box-sizing: border-box; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); background-color: white; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
-        #spin-btn { margin-top: 30px; padding: 15px 60px; font-size: 1.4rem; font-weight: bold; cursor: pointer; background: linear-gradient(45deg, #c41e3a, #ff4d4d); color: white; border: 2px solid #ffd700; border-radius: 50px; box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4); transition: 0.3s; z-index: 10; }
+
+        .main-layout { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; margin-top: 20px; }
+
+        .config-section { 
+            padding: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); 
+            border-radius: 20px; border: 2px solid #c41e3a; text-align: center; width: 300px;
+        }
+
+        .wheel-area { position: relative; width: 380px; height: 380px; }
+        .pointer { 
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; 
+            border-top: 35px solid #ffd700; z-index: 20; filter: drop-shadow(0 0 10px rgba(255,215,0,0.8)); 
+        }
+        #wheel { 
+            width: 100%; height: 100%; border-radius: 50%; border: 8px solid #ffd700; 
+            box-sizing: border-box; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); 
+            background-color: white; box-shadow: 0 0 40px rgba(0,0,0,0.6); 
+        }
+
+        .record-section {
+            width: 300px; padding: 20px; background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px); border-radius: 20px; border: 2px solid #ffd700;
+        }
+        .record-list { list-style: none; padding: 0; margin-top: 10px; max-height: 300px; overflow-y: auto; }
+        .record-item { background: rgba(255,255,255,0.2); margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; border-left: 4px solid #ffd700; }
+
+        .btn-group { margin-top: 30px; display: flex; gap: 15px; }
+        #spin-btn, #reset-btn { 
+            padding: 15px 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 50px; border: 2px solid #ffd700; transition: 0.3s; 
+        }
+        #spin-btn { background: linear-gradient(45deg, #c41e3a, #ff4d4d); color: white; }
+        #reset-btn { background: #555; color: white; border-color: #ccc; }
         #spin-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 20px #ffd700; }
+        #reset-btn:hover { background: #333; }
         #spin-btn:disabled { filter: grayscale(1); cursor: not-allowed; }
+
+        select { padding: 8px; width: 100%; font-size: 1rem; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>🎄 聖誕交換禮物 (18格版) 🎁</h1>
+    <h1>🎄 聖誕交換禮物：不重複中選系統 🎁</h1>
 
-    <div class="config-section">
-        <label><strong>🎅 我是：</strong></label>
-        <select id="user-select">
-            <option value="">-- 請選擇名字 --</option>
-            <option value="思屏">思屏</option>
-            <option value="明諺">明諺</option>
-            <option value="柏融">柏融</option>
-            <option value="芷綺">芷綺</option>
-            <option value="宛蓁">宛蓁</option>
-            <option value="博晏">博晏</option>
-        </select>
-    </div>
-    
-    <div class="wheel-container">
-        <div class="pointer"></div>
-        <canvas id="wheel" width="500" height="500"></canvas>
+    <div class="main-layout">
+        <div class="config-section">
+            <h3>🎅 誰要抽籤？</h3>
+            <select id="user-select">
+                <option value="">-- 請選擇名字 --</option>
+                <option value="思屏">思屏</option>
+                <option value="明諺">明諺</option>
+                <option value="柏融">柏融</option>
+                <option value="芷綺">芷綺</option>
+                <option value="宛蓁">宛蓁</option>
+                <option value="博晏">博晏</option>
+            </select>
+            <p id="remaining-count" style="margin-top:15px; font-size: 0.9rem;">剩餘候選人：6 位</p>
+        </div>
+
+        <div class="wheel-area">
+            <div class="pointer"></div>
+            <canvas id="wheel" width="500" height="500"></canvas>
+        </div>
+
+        <div class="record-section">
+            <h3>📜 中選紀錄</h3>
+            <ul id="record-list" class="record-list">
+                </ul>
+        </div>
     </div>
 
-    <button id="spin-btn">🌟 抽取 3/18 的幸運 🌟</button>
+    <div class="btn-group">
+        <button id="spin-btn">🌟 開始抽取獎勵 🌟</button>
+        <button id="reset-btn">🔄 重置系統</button>
+    </div>
 
     <script>
         // 雪花特效
-        function createSnow() {
+        setInterval(() => {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
             snowflake.innerHTML = '❄';
             snowflake.style.left = Math.random() * 100 + 'vw';
             snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-            snowflake.style.opacity = Math.random();
             document.body.appendChild(snowflake);
             setTimeout(() => snowflake.remove(), 5000);
-        }
-        setInterval(createSnow, 150);
+        }, 200);
 
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         const btn = document.getElementById('spin-btn');
+        const resetBtn = document.getElementById('reset-btn');
         const userSelect = document.getElementById('user-select');
+        const recordList = document.getElementById('record-list');
+        const remainingText = document.getElementById('remaining-count');
 
-        // 將 6 人名單擴展為 18 格 (每人出現 3 次，且交錯排列)
-        const baseNames = ['思屏', '明諺', '柏融', '芷綺', '宛蓁', '博晏'];
-        const allSegments = [...baseNames, ...baseNames, ...baseNames]; 
-        // 聖誕配色
+        // 初始設定
+        const originalNames = ['思屏', '明諺', '柏融', '芷綺', '宛蓁', '博晏'];
+        let availableCandidates = [...originalNames];
+        let history = [];
+        let currentRotation = 0;
+
         const colors = ['#c41e3a', '#2e7d32', '#1565c0', '#e67e22', '#8e44ad', '#2c3e50'];
-        const segmentColors = [...colors, ...colors, ...colors];
-
         const exclusions = {
             '思屏': ['思屏', '明諺'], '明諺': ['明諺', '思屏'],
             '柏融': ['柏融', '芷綺'], '芷綺': ['芷綺', '柏融'],
             '宛蓁': ['宛蓁', '博晏'], '博晏': ['博晏', '宛蓁']
         };
-
-        const totalSlices = allSegments.length; // 18
-        const sliceDeg = 360 / totalSlices;
-        let currentRotation = 0;
 
         function drawWheel() {
             const centerX = canvas.width / 2;
@@ -90,6 +129,23 @@
             const radius = centerX;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // 構建轉盤內容：每個候選人佔 3 格 (維持 3/18 機率感，若人數變少則比例增加)
+            let segments = [];
+            availableCandidates.forEach(name => {
+                segments.push(name, name, name);
+            });
+
+            if (segments.length === 0) {
+                ctx.fillStyle = "#333";
+                ctx.textAlign = "center";
+                ctx.font = "bold 30px Arial";
+                ctx.fillText("全部抽完囉！", centerX, centerY);
+                return;
+            }
+
+            const totalSlices = segments.length;
+            const sliceDeg = 360 / totalSlices;
+
             for (let i = 0; i < totalSlices; i++) {
                 const startAngle = (i * sliceDeg - 90 - sliceDeg / 2) * Math.PI / 180;
                 const endAngle = ((i + 1) * sliceDeg - 90 - sliceDeg / 2) * Math.PI / 180;
@@ -97,7 +153,7 @@
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
                 ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.fillStyle = segmentColors[i];
+                ctx.fillStyle = colors[originalNames.indexOf(segments[i]) % colors.length];
                 ctx.fill();
                 ctx.strokeStyle = '#ffd700';
                 ctx.lineWidth = 1;
@@ -108,50 +164,97 @@
                 ctx.rotate(startAngle + (sliceDeg / 2) * Math.PI / 180);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "white";
-                ctx.font = "bold 16px Arial"; // 18格格子較小，字體縮小
-                ctx.fillText(allSegments[i], radius - 25, 6);
+                ctx.font = totalSlices > 10 ? "bold 14px Arial" : "bold 20px Arial";
+                ctx.fillText(segments[i], radius - 25, 6);
                 ctx.restore();
             }
+            remainingText.innerText = `剩餘候選人：${availableCandidates.length} 位`;
         }
 
         function spin() {
             const currentUser = userSelect.value;
             if (!currentUser) {
-                Swal.fire({ icon: 'warning', title: '聖誕提醒', text: '請先選擇身分！', confirmButtonColor: '#c41e3a' });
+                Swal.fire('聖誕提醒', '請先選擇身分！', 'warning');
+                return;
+            }
+
+            // 過濾出符合規則的人選
+            const myExclusions = exclusions[currentUser];
+            const legalCandidates = availableCandidates.filter(c => !myExclusions.includes(c));
+
+            if (legalCandidates.length === 0) {
+                Swal.fire('喔喔！', '剩餘名單中已無你可以抽取的對象。', 'info');
                 return;
             }
 
             btn.disabled = true;
-            
-            let targetIndex;
-            const myExclusions = exclusions[currentUser];
-            
-            // 隨機抽選 0-17 之間的索引，直到抽到的名字符合規則
-            do {
-                targetIndex = Math.floor(Math.random() * totalSlices);
-            } while (myExclusions.includes(allSegments[targetIndex]));
 
-            const stopAt = 360 - (targetIndex * sliceDeg);
-            const totalRotate = currentRotation + (360 * 12) + (stopAt - (currentRotation % 360) + 360) % 360;
+            // 隨機選一個合法候選人
+            const winner = legalCandidates[Math.floor(Math.random() * legalCandidates.length)];
+            
+            // 計算轉盤中 winner 的所有位置
+            let segments = [];
+            availableCandidates.forEach(name => { segments.push(name, name, name); });
+            const totalSlices = segments.length;
+            const sliceDeg = 360 / totalSlices;
+            
+            // 隨機選 winner 的其中一個格位來停
+            const possibleIndices = segments.map((name, idx) => name === winner ? idx : -1).filter(idx => idx !== -1);
+            const targetIdx = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
+
+            const stopAt = 360 - (targetIdx * sliceDeg);
+            const totalRotate = currentRotation + (360 * 10) + (stopAt - (currentRotation % 360) + 360) % 360;
             
             currentRotation = totalRotate;
             canvas.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(() => {
                 Swal.fire({
-                    title: '🎄 抽到禮物囉！',
-                    html: `<div style="font-size: 1.2rem;"><b>${currentUser}</b> 的幸運星是：<br><span style="font-size: 2.5rem; color: #c41e3a; font-weight: bold;">🎁 ${allSegments[targetIndex]} 🎁</span></div>`,
-                    icon: 'success',
-                    confirmButtonText: 'Merry Christmas!',
-                    confirmButtonColor: '#2e7d32',
-                    backdrop: `rgba(0,0,0,0.6)`
+                    title: '🎁 抽籤結果',
+                    html: `<b>${currentUser}</b> 抽中了 <b>${winner}</b>！`,
+                    icon: 'success'
                 });
+
+                // 更新歷史紀錄
+                history.push({ from: currentUser, to: winner });
+                const li = document.createElement('li');
+                li.className = 'record-item';
+                li.innerText = `🎅 ${currentUser} ➜ 🎁 ${winner}`;
+                recordList.prepend(li);
+
+                // 從候選名單中移除 winner
+                availableCandidates = availableCandidates.filter(c => c !== winner);
+                
+                // 重新繪製轉盤
+                drawWheel();
                 btn.disabled = false;
             }, 5200);
         }
 
+        function reset() {
+            Swal.fire({
+                title: '確定要重置嗎？',
+                text: "所有紀錄與名單將恢復初始狀態！",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#c41e3a',
+                confirmButtonText: '是的，重新開始'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    availableCandidates = [...originalNames];
+                    history = [];
+                    recordList.innerHTML = '';
+                    currentRotation = 0;
+                    canvas.style.transform = `rotate(0deg)`;
+                    drawWheel();
+                    Swal.fire('已重置', '可以開始新的一輪抽選囉！', 'success');
+                }
+            });
+        }
+
         drawWheel();
         btn.addEventListener('click', spin);
+        resetBtn.addEventListener('click', reset);
     </script>
 </body>
 </html>
